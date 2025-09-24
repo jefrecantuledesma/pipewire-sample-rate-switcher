@@ -10,18 +10,18 @@ use regex::Regex;
 fn main() {
     let matches = ClapCommand::new("pipewire-sample-rate-switcher")
         .version("1.0")
-        .about("Swap PipeWire sample rate between options listed in ~/.config/sway/config")
+        .about("Swap PipeWire sample rate between options listed in ~/.config/sway/config.")
         .arg(
             Arg::new("config")
                 .long("config")
                 .value_name("PATH")
-                .help("Path to sway config (default: ~/.config/sway/config)")
+                .help("Path to sway config (default: ~/.config/sway/config).")
                 .required(false),
         )
         .arg(
             Arg::new("show")
                 .long("show")
-                .help("Show parsed options and current rate; do not change anything")
+                .help("Show parsed options and current rate; do not change anything.")
                 .action(clap::ArgAction::SetTrue),
         )
         .get_matches();
@@ -46,7 +46,7 @@ fn main() {
         .position(|l| l.contains(start_marker))
         .unwrap_or_else(|| {
             panic!(
-                "Marker '{}' not found in {}",
+                "Marker '{}' not found in {}.",
                 start_marker,
                 config_path.display()
             )
@@ -56,7 +56,7 @@ fn main() {
         .position(|l| l.contains(end_marker))
         .unwrap_or_else(|| {
             panic!(
-                "Marker '{}' not found in {}",
+                "Marker '{}' not found in {}.",
                 end_marker,
                 config_path.display()
             )
@@ -81,7 +81,10 @@ fn main() {
         .collect();
 
     if options.is_empty() {
-        panic!("No sample-rate numbers found on options line: {}", opt_line);
+        panic!(
+            "No sample-rate numbers found on options line: {}.",
+            opt_line
+        );
     }
 
     // Deduplicate & sort to make cycling deterministic
@@ -95,8 +98,8 @@ fn main() {
     });
 
     if matches.get_flag("show") {
-        eprintln!("Found options: {:?}", options);
-        eprintln!("Current sample rate: {}", current);
+        eprintln!("Found options: {:?}.", options);
+        eprintln!("Current sample rate: {}.", current);
         return;
     }
 
@@ -107,21 +110,21 @@ fn main() {
     match set_pw_force_rate(next) {
         Ok(_) => {
             println!(
-                "Switched PipeWire clock.force-rate from {} to {}",
+                "Switched PipeWire clock.force-rate from {} to {}.",
                 current, next
             );
             notify_ok(current, next);
         }
         Err(e) => {
-            eprintln!("Failed to set PipeWire rate to {}: {}", next, e);
-            notify_err(&format!("Failed to set rate to {}: {}", next, e));
+            eprintln!("Failed to set PipeWire rate to {}: {}.", next, e);
+            notify_err(&format!("Failed to set rate to {}: {}.", next, e));
             std::process::exit(1);
         }
     }
 }
 
 fn default_sway_config() -> PathBuf {
-    let home = env::var("HOME").expect("HOME is not set");
+    let home = env::var("HOME").expect("HOME is not set.");
     PathBuf::from(home).join(".config/sway/config")
 }
 
@@ -177,7 +180,7 @@ fn set_pw_force_rate(rate: u32) -> Result<(), String> {
 fn notify_ok(from: u32, to: u32) {
     let _ = Notification::new()
         .summary("Pipewire Sample Rate Switcher")
-        .body(&format!("Switched PipeWire rate: {} → {} Hz", from, to))
+        .body(&format!("Switched PipeWire rate: {} -> {} Hz.", from, to))
         .icon("audio-card")
         .appname("pipewire-sample-rate-switcher")
         .hint(Hint::Category("Device".to_owned()))
